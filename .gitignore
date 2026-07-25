@@ -1,0 +1,30 @@
+# Model weights (large files — download from Drive link in README)
+best.pt
+yolo11s.pt
+*.pt
+
+# Videos
+*.mp4
+*.avi
+*.mov
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# YOLO runs
+runs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
