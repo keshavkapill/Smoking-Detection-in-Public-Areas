@@ -1,237 +1,592 @@
-# 🚭 Cigarette Violation Detection in Restricted Areas
+# 🚭 SMOKING DETECTION IN PUBLIC AREAS
 
-> A real-time computer vision system that detects persons smoking in restricted/non-smoking zones using a dual-model YOLOv11 pipeline with ByteTrack multi-object tracking.
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=210&section=header&text=🚭%20Smoking%20Detection&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=38"/>
+</p>
 
----
+<p align="center">
+  <b>AI-Powered Computer Vision System for Detecting Smoking Violations in Restricted Areas</b>
+</p>
 
-## 📌 Project Overview
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-Computer%20Vision-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/YOLOv11-Object%20Detection-FF6F00?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/ByteTrack-Multi--Object%20Tracking-8A2BE2?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/OpenCV-Video%20Processing-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white"/>
+</p>
 
-This project implements an AI-powered surveillance system capable of:
-
-- **Detecting persons** in a video feed using the YOLOv11s model pre-trained on the COCO dataset
-- **Detecting cigarettes** using a custom-trained YOLOv11s model (`best.pt`) fine-tuned on a labelled cigarette dataset
-- **Associating** cigarette detections with persons using a spatial containment algorithm
-- **Tracking** each individual across frames using ByteTrack, assigning unique IDs
-- **Flagging violations** — any person whose bounding box contains a cigarette detection is marked as a smoker in a restricted area
-
-The system is designed to simulate a real-world restricted-area monitoring use case, where smoking violations can be logged, flagged, or escalated automatically.
-
----
-
-## 🎯 Detection Logic
-
-```
-Video Frame
-    │
-    ├──► YOLOv11s (COCO)  ──► Person detections  [class 0]
-    │                              │
-    └──► YOLOv11s (Custom) ──► Cigarette detections [class 1]
-                                   │
-                     Spatial Containment Check
-                     (Is cigarette inside person box?)
-                                   │
-              ┌────────────────────┴────────────────────┐
-              │                                         │
-         YES → Person flagged as SMOKER           NO → Safe Person
-         (Red bounding box)                       (Green bounding box)
-```
-
-**Containment Algorithm:** Rather than using standard IoU (which gives near-zero values since a cigarette box is tiny compared to a person), the system computes what fraction of the cigarette's bounding box lies within the person's bounding box. If that fraction exceeds the threshold (`0.30`), the person is flagged as smoking.
+<p align="center">
+  <img src="https://img.shields.io/github/stars/keshavkapill/Smoking-Detection-in-Public-Areas?style=flat-square&color=yellow"/>
+  <img src="https://img.shields.io/github/forks/keshavkapill/Smoking-Detection-in-Public-Areas?style=flat-square&color=blue"/>
+  <img src="https://img.shields.io/github/last-commit/keshavkapill/Smoking-Detection-in-Public-Areas?style=flat-square&color=green"/>
+</p>
 
 ---
 
-## 🗂️ Project Structure
+## 🧠 What Is This Project?
 
+**Smoking Detection in Public Areas** is an AI-powered computer vision system that detects people smoking in restricted or non-smoking areas.
+
+Instead of simply looking for a cigarette, the system combines:
+
+> 👤 **Person Detection** + 🚬 **Cigarette Detection** + 🎯 **Spatial Analysis** + 🆔 **Object Tracking**
+
+This allows the system to determine whether a detected cigarette is associated with a particular person.
+
+The project uses a **dual YOLOv11 pipeline**, **ByteTrack**, and **OpenCV** for real-time video analysis.
+
+---
+
+## ✨ Project At A Glance
+
+<table>
+<tr>
+<td align="center" width="25%">
+
+### 👤
+
+**Person Detection**
+
+Detects people using a COCO-pretrained YOLOv11 model.
+
+</td>
+
+<td align="center" width="25%">
+
+### 🚬
+
+**Cigarette Detection**
+
+Uses a custom-trained YOLOv11 model to detect cigarettes.
+
+</td>
+
+<td align="center" width="25%">
+
+### 🎯
+
+**Smart Association**
+
+Determines whether a cigarette belongs to a detected person.
+
+</td>
+
+<td align="center" width="25%">
+
+### 🆔
+
+**Tracking**
+
+ByteTrack maintains unique IDs across video frames.
+
+</td>
+</tr>
+</table>
+
+---
+
+# 🔥 How The System Works
+
+```text
+                    🎥 INPUT VIDEO
+                          │
+                          ▼
+                 ┌─────────────────┐
+                 │   Video Frame   │
+                 └────────┬────────┘
+                          │
+              ┌───────────┴───────────┐
+              │                       │
+              ▼                       ▼
+      👤 YOLOv11 COCO          🚬 Custom YOLOv11
+      Person Detection         Cigarette Detection
+              │                       │
+              ▼                       ▼
+        Person Boxes            Cigarette Boxes
+              │                       │
+              └───────────┬───────────┘
+                          ▼
+                 🎯 Spatial Analysis
+                          │
+                          ▼
+             Is cigarette inside/within
+                person's bounding box?
+                          │
+              ┌───────────┴───────────┐
+              │                       │
+             YES                     NO
+              │                       │
+              ▼                       ▼
+        🚨 SMOKING                🟢 SAFE
+          DETECTED                 PERSON
+              │
+              ▼
+       🆔 ByteTrack ID
+              │
+              ▼
+       📊 Live Statistics
 ```
-Cigarette-Violation-Detection-In-Restricted-Areas/
+
+The project uses spatial containment rather than standard IoU because cigarette bounding boxes are extremely small compared with person bounding boxes. A configurable containment threshold is used to associate the cigarette with a person.
+
+---
+
+# 🎯 Detection Logic
+
+<table>
+<tr>
+<th>Detection</th>
+<th>Result</th>
+</tr>
+
+<tr>
+<td>👤 Person detected</td>
+<td>Person bounding box created</td>
+</tr>
+
+<tr>
+<td>🚬 Cigarette detected</td>
+<td>Cigarette bounding box created</td>
+</tr>
+
+<tr>
+<td>🎯 Cigarette inside person region</td>
+<td>Potential smoking violation</td>
+</tr>
+
+<tr>
+<td>🆔 ByteTrack tracking</td>
+<td>Person receives a persistent ID</td>
+</tr>
+
+<tr>
+<td>🚨 Violation confirmed</td>
+<td>Person highlighted as smoking</td>
+</tr>
+
+</table>
+
+---
+
+# 🎨 Visual Detection System
+
+<div align="center">
+
+|    Visual Indicator    | Meaning                               |
+| :--------------------: | ------------------------------------- |
+|    🟢 **Green Box**    | Person detected — no smoking          |
+|     🔴 **Red Box**     | Smoking person detected               |
+|    🟠 **Orange Box**   | Cigarette detected                    |
+|       🆔 **ID:N**      | ByteTrack tracking ID                 |
+|   📊 **Stats Panel**   | Persons / Smoking / Safe / Violations |
+| 🚨 **SMOKER DETECTED** | Active violation                      |
+
+</div>
+
+The inference pipeline draws these indicators directly on the processed video and saves the resulting output as an `.mp4` file.
+
+---
+
+# 🧠 AI Pipeline
+
+<table>
+<tr>
+<td width="50%">
+
+### YOLOv11s — Person Model
+
+**Purpose**
+
+Detect people in the video.
+
+**Source**
+
+COCO pretrained model.
+
+**Output**
+
+Person bounding boxes + confidence scores.
+
+</td>
+
+<td width="50%">
+
+### YOLOv11s — Cigarette Model
+
+**Purpose**
+
+Detect cigarettes.
+
+**Source**
+
+Custom-trained model.
+
+**Output**
+
+Cigarette bounding boxes + confidence scores.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+### ByteTrack
+
+Maintains persistent identities for detected people across video frames.
+
+</td>
+
+<td>
+
+### Spatial Containment
+
+Associates a cigarette with a person using bounding-box containment.
+
+</td>
+</tr>
+</table>
+
+The repository currently uses `yolo11s.pt` for person detection and `best.pt` as the custom cigarette detector.
+
+---
+
+# 🏗️ Model Development Pipeline
+
+```text
+📸 DATA COLLECTION
+        │
+        ▼
+🏷️ IMAGE ANNOTATION
+      CVAT
+        │
+        ▼
+🧹 DATA CLEANING
+        │
+        ▼
+📚 80% TRAINING / 20% VALIDATION
+        │
+        ▼
+🧠 YOLOv11 TRAINING
+        │
+        ▼
+💾 best.pt
+        │
+        ▼
+🚀 REAL-TIME INFERENCE
+        │
+        ▼
+📊 DETECTION + TRACKING
+```
+
+The custom dataset was prepared in YOLO format, annotated using CVAT, cleaned, and split into training and validation data before model training.
+
+---
+
+# 🛠️ Tech Stack
+
+<p align="center">
+
+| Technology       | Role                             |
+| ---------------- | -------------------------------- |
+| 🐍 **Python**    | Core programming language        |
+| 🧠 **YOLOv11**   | Object detection                 |
+| 🆔 **ByteTrack** | Multi-object tracking            |
+| 👁️ **OpenCV**   | Video processing & visualization |
+| 🏷️ **CVAT**     | Dataset annotation               |
+| 🔢 **NumPy**     | Numerical operations             |
+
+</p>
+
+---
+
+# 📂 Project Structure
+
+```text
+Smoking-Detection-in-Public-Areas/
 │
-├── Inference.py          # Main dual-model inference pipeline
-├── run_inference.py      # Simple single-model inference script
-├── best.pt               # Custom trained cigarette detection model
-│                           (download separately — see below)
-├── requirements.txt      # Python dependencies
-└── README.md
+├── 📁 Cigarette-Violation-Detection-In-Restricted-Areas-main/
+│
+├── 🐍 Inference.py
+│   └── Main dual-model inference pipeline
+│
+├── 🐍 run_inference.py
+│   └── Single-model inference script
+│
+├── 📄 requirements.txt
+│   └── Python dependencies
+│
+├── 📄 README.md
+│
+└── 🚫 best.pt
+    └── Custom cigarette detection model
 ```
 
----
-
-## 🧠 Models Used
-
-| Model | Purpose | Source |
-|-------|---------|--------|
-| `yolo11s.pt` | Person detection (class 0) | COCO pretrained — auto-downloaded by Ultralytics |
-| `best.pt` | Cigarette detection (class 1) | Custom trained on labelled cigarette dataset |
-
-### ⬇️ Download Custom Model (`best.pt`)
-
-The custom cigarette detection model is hosted on Google Drive due to file size:
-
-**[📥 Download best.pt from Google Drive](https://drive.google.com/file/d/1HVLW4I-1kuvUrhAJ9uT9qsIg-j9cDC_8/view?usp=drive_link)**
-
-Place the downloaded `best.pt` file in the root of the project directory before running inference.
+The repository currently contains the inference scripts, requirements file and README; the custom model is downloaded separately because of its file size.
 
 ---
 
-## 🏗️ Complete Pipeline
+# ⚙️ Requirements
 
-### 1. Dataset Preparation
-- Raw images collected containing cigarettes in various scenarios
-- Annotations created using **CVAT** (Computer Vision Annotation Tool) in YOLO format
-- Dataset cleaned: non-annotated images removed, verified bounding boxes
-- Split: **80% training / 20% validation**
-- Final structure exported as a YOLO-compatible dataset with `data.yaml`
+### 🐍 Python
 
-### 2. Model Training
-- Base model: `yolo11s.pt` (small variant, optimised for speed)
-- Framework: **Ultralytics YOLOv11**
-- Training performed on GPU with custom hyperparameters
-- Output: `best.pt` — the best checkpoint based on validation mAP
+```text
+Python 3.8+
+```
 
-### 3. Inference Pipeline (`Inference.py`)
-- **Person model** runs `.track()` with ByteTrack enabled → persistent IDs across frames
-- **Cigarette model** runs `.predict()` on the same frame
-- Spatial containment check links cigarettes to persons
-- Per-frame visualisation drawn using OpenCV:
-  - 🟢 Green box → Safe person
-  - 🔴 Red box → Smoking person
-  - 🟠 Orange box → Cigarette
-  - Live stats panel (top-right): Total Persons / Smoking / Safe / Violations
-  - Fixed black banner (bottom 8%) → `SMOKER DETECTED` text appears in red only when a violation is active
-- Output video saved as `.mp4`
-
----
-
-## 📸 Detection Screenshots
-
-<img width="1821" height="910" alt="image" src="https://github.com/user-attachments/assets/4e5ccffb-27d7-4006-9de3-034745f9ad7c" />
-
-<br/>
-
-<br/>
-
-
-<img width="1917" height="906" alt="image" src="https://github.com/user-attachments/assets/b350e628-a539-4c65-b4d7-5966366a7d99" />
-
-<br/>
-
-<br/>
-
-
-
-<img width="1888" height="912" alt="image" src="https://github.com/user-attachments/assets/6414c9bc-f918-4aa1-b65b-05512404bb4a" />
-
-
-
-## ⚙️ Requirements
-
-**Python:** 3.8+
-
-Install all dependencies:
+### 📦 Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### `requirements.txt`
+Main dependencies include:
 
-```
+```text
 ultralytics>=8.3.0
 opencv-python>=4.8.0
 numpy>=1.24.0
 ```
 
-> **Note:** `ultralytics` automatically handles downloading `yolo11s.pt` (COCO pretrained) on first run. You only need to manually download `best.pt`.
-
 ---
 
-## 🚀 How to Run
+# 🚀 Run The Project
 
-### Step 1 — Clone the repository
+### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/keshavkapill/Cigarette-Violation-Detection-In-Restricted-Areas.git
-cd Cigarette-Violation-Detection-In-Restricted-Areas
+git clone https://github.com/keshavkapill/Smoking-Detection-in-Public-Areas.git
+cd Smoking-Detection-in-Public-Areas
 ```
 
-### Step 2 — Install dependencies
+### 2️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3 — Download the custom model
+### 3️⃣ Download Custom Model
 
-Download `best.pt` from the [Google Drive link](https://drive.google.com/file/d/1HVLW4I-1kuvUrhAJ9uT9qsIg-j9cDC_8/view?usp=drive_link) and place it in the project root.
+Download the custom `best.pt` model from the Google Drive link provided in the repository and place it inside the project directory.
 
-### Step 4 — Add your input video
+### 4️⃣ Add Your Video
 
-Place your input video in the project root. Update the config at the top of `Inference.py`:
+Place your input video inside the project directory.
+
+Update:
 
 ```python
-VIDEO_IN  = "your_video.mp4"   # Input video path
-VIDEO_OUT = "output.mp4"       # Output video path
+VIDEO_IN = "your_video.mp4"
+VIDEO_OUT = "output.mp4"
 ```
 
-### Step 5 — Run inference
+### 5️⃣ Start Detection
 
 ```bash
 python Inference.py
 ```
 
-The processed output video will be saved in the project root.
+The processed video will contain detection boxes, tracking IDs and live violation statistics.
 
 ---
 
-## 🔧 Configuration Parameters
+# 🔧 Configuration
 
-All parameters are adjustable in `Inference.py`:
+The inference pipeline exposes parameters that can be adjusted according to the video and detection requirements.
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `PERSON_CONF` | `0.40` | Minimum confidence for person detection |
-| `CIG_CONF` | `0.25` | Minimum confidence for cigarette detection |
-| `IOU_THRESH` | `0.45` | NMS IoU threshold |
-| `OVERLAP_THRESH` | `0.30` | Containment ratio to associate cigarette with person |
-| `PERSON_MODEL` | `yolo11s.pt` | COCO pretrained person detector |
-| `CIGARETTE_MODEL` | `best.pt` | Custom cigarette detector |
+| Parameter         |      Default | Purpose                                |
+| ----------------- | -----------: | -------------------------------------- |
+| `PERSON_CONF`     |       `0.40` | Person detection confidence            |
+| `CIG_CONF`        |       `0.25` | Cigarette detection confidence         |
+| `IOU_THRESH`      |       `0.45` | NMS IoU threshold                      |
+| `OVERLAP_THRESH`  |       `0.30` | Person–cigarette containment threshold |
+| `PERSON_MODEL`    | `yolo11s.pt` | Person detector                        |
+| `CIGARETTE_MODEL` |    `best.pt` | Cigarette detector                     |
 
----
-
-## 📊 System Output — Visual Indicators
-
-| Visual Element | Meaning |
-|----------------|---------|
-| 🟢 Green bounding box | Person detected — no smoking |
-| 🔴 Red bounding box | Person detected — smoking in restricted area |
-| 🟠 Orange bounding box | Cigarette detected |
-| `ID:N` label | Unique ByteTrack ID for each person |
-| `person 0.XX` | Person class + confidence score |
-| `cigarette 0.XX` | Cigarette class + confidence score |
-| Live Stats panel | Real-time count of persons, smokers, safe, violations |
-| Bottom banner | `SMOKER DETECTED` (red) — appears only when violation is active |
+These parameters are configurable in `Inference.py`.
 
 ---
 
-## 🛠️ Tech Stack
+# 📊 What The System Can Show
 
-| Component | Technology |
-|-----------|-----------|
-| Object Detection | YOLOv11s (Ultralytics) |
-| Person Detection | COCO Pretrained YOLOv11s |
-| Cigarette Detection | Custom Trained YOLOv11s |
-| Multi-Object Tracking | ByteTrack |
-| Video Processing | OpenCV |
-| Annotation Tool | CVAT |
-| Language | Python 3.x |
+<div align="center">
+
+### LIVE MONITORING
+
+```text
+┌─────────────────────────────────────────┐
+│          📊 LIVE STATISTICS             │
+│                                         │
+│  👤 Total Persons     : 08              │
+│  🚭 Smoking           : 02              │
+│  🟢 Safe              : 06              │
+│  🚨 Violations        : 02              │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+</div>
+
+The actual inference visualization includes live counts for total persons, smoking persons, safe persons and violations.
 
 ---
 
+# 🌍 Potential Applications
+
+<table>
+<tr>
+<td>🏢 <b>Office Buildings</b><br><sub>Monitor designated smoke-free areas</sub></td>
+<td>🏥 <b>Hospitals</b><br><sub>Support smoke-free environments</sub></td>
+</tr>
+
+<tr>
+<td>🎓 <b>Educational Campuses</b><br><sub>Monitor restricted areas</sub></td>
+<td>🚉 <b>Transport Hubs</b><br><sub>Assist monitoring in stations and terminals</sub></td>
+</tr>
+
+<tr>
+<td>🏬 <b>Commercial Spaces</b><br><sub>Support automated monitoring</sub></td>
+<td>📹 <b>Smart Surveillance</b><br><sub>Integrate computer vision into monitoring systems</sub></td>
+</tr>
+</table>
 
 ---
 
-## 👤 Author
+# 🚀 Future Improvements
 
-**Keshav Kapil**
+```text
+🔮 Possible Next Steps
 
-[![GitHub](https://img.shields.io/badge/GitHub-keshavkapill-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/keshavkapill)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-keshavkapil15-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/keshavkapil15)
+├── 📹 CCTV / RTSP camera integration
+├── 📧 Automatic email alerts
+├── 📱 Mobile notifications
+├── ☁️ Cloud-based violation logging
+├── 📊 Web dashboard
+├── 🗃️ Database-backed violation history
+├── 📷 Evidence snapshot generation
+└── 🏢 Multi-camera monitoring
+```
+
+---
+
+# 💡 What This Project Demonstrates
+
+This project brings together several important computer vision concepts:
+
+**Object Detection**
+
+→ Detecting people and cigarettes.
+
+**Object Tracking**
+
+→ Maintaining identities across frames.
+
+**Spatial Reasoning**
+
+→ Determining whether a cigarette belongs to a person.
+
+**Real-Time Video Processing**
+
+→ Processing and annotating video frames.
+
+**AI Model Training**
+
+→ Training a custom YOLOv11 model for cigarette detection.
+
+**Practical AI**
+
+→ Turning computer vision models into a real-world monitoring concept.
+
+---
+
+# ⭐ Why This Project Is Interesting
+
+> **The interesting part isn't just detecting a cigarette.**
+
+The system tries to answer a more meaningful question:
+
+### 🚬 "Who is actually smoking?"
+
+A cigarette detector alone can identify a cigarette.
+
+A person detector can identify a person.
+
+But combining:
+
+```text
+PERSON
+   +
+CIGARETTE
+   +
+SPATIAL RELATIONSHIP
+   +
+TRACKING
+   =
+🚨 POTENTIAL SMOKING VIOLATION
+```
+
+makes the system significantly more useful for real-world monitoring scenarios.
+
+---
+
+# 📌 Project Status
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Development-Completed-success?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Computer%20Vision-Active-blue?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/YOLOv11-Powered-orange?style=for-the-badge"/>
+
+</p>
+
+---
+
+# ⭐ Support The Project
+
+If you found this project interesting, useful or educational:
+
+<p align="center">
+
+<a href="https://github.com/keshavkapill/Smoking-Detection-in-Public-Areas">
+<img src="https://img.shields.io/badge/⭐%20Star%20Repository-181717?style=for-the-badge&logo=github"/>
+</a>
+
+</p>
+
+---
+
+# 👨‍💻 Let's Connect
+
+<p align="center">
+  <b>Interested in AI • Computer Vision • Software Development • Data • Collaboration?</b>
+</p>
+
+<p align="center">
+
+<a href="https://github.com/KeshavKapill">
+<img src="https://img.shields.io/badge/GitHub-KeshavKapill-181717?style=for-the-badge&logo=github&logoColor=white"/>
+</a>
+
+  
+
+<a href="https://www.linkedin.com/in/keshavkapil15/">
+<img src="https://img.shields.io/badge/LinkedIn-Keshav%20Kapil-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
+</a>
+
+</p>
+
+<p align="center">
+
+**🤝 Feel free to connect, collaborate, suggest improvements or discuss ideas!**
+
+</p>
+
+---
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=120&section=footer"/>
+</p>
+
+<p align="center">
+  <sub>Built with 🧠 AI + 👁️ Computer Vision + 🐍 Python</sub>
+</p>
